@@ -7,6 +7,8 @@ import { getState, setState } from '../store/gameStore';
 import { processFleaMarketDay } from './fleaMarket';
 import { processDeliveries } from './onlineShopping';
 import type { MorningEvent } from '../types/gameState';
+import { processMonthEnd } from './monthEnd';
+import type { MonthEndResult } from './monthEnd';
 import { determineTodayEvents } from './randomEvents';
 import type { ActiveEvent } from '../types/randomEvent';
 
@@ -15,7 +17,11 @@ const FOOD_COST = 1000; //食費
 const LATE_FOR_WORK_THRESHOLD = 90; //玄関の汚さ90以上で遅刻
 const HUNGRY_VITALITY_PENALTY = 0.5; // 食費ないときの元気度減らし
 
-export function advanceDay(): { isMonthEnd: boolean, morningEvents: MorningEvent[]; } {
+export function advanceDay(): { 
+  isMonthEnd: boolean; 
+  morningEvents: MorningEvent[];
+  monthEndResult?: MonthEndResult;  // 月末のときだけ存在
+} {
   const state = getState();
 
   // ── 日付を進める ────────────────────────────────
@@ -116,6 +122,10 @@ if (state.money >= FOOD_COST) {
       : getState().lateForWorkCount,
   });
 
-  return { isMonthEnd, morningEvents };
+  let monthEndResult: MonthEndResult | undefined;
+  if (isMonthEnd) {
+    monthEndResult = processMonthEnd();
+  }
+  return { isMonthEnd, morningEvents, monthEndResult };
 
 }
