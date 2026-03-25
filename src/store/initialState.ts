@@ -31,6 +31,7 @@ export const initialState: GameState = {
   pendingFleas: [],
   pendingDeliveries: [],
   morningEvents: [],
+  todayEvents: [],
   lateForWorkCount: 0,
   monthlyRent: 70000,
 };
