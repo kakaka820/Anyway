@@ -5,6 +5,7 @@ import type { AreaId, AreaDefinition } from './area';
 import type { ItemInstance } from './item';
 import type { PendingFleaResult } from '../logic/fleaMarket';
 import type { PendingDelivery } from '../logic/onlineShopping';
+import type { ActiveEvent } from './randomEvent';
 
 // ────────────────────────────────
 // エリアごとの現在の状態
@@ -62,6 +63,7 @@ export interface GameState {
 
   // ── 朝 ────────────────────
   morningEvents: MorningEvent[];   // 朝に表示するイベントキュー
+  todayEvents: ActiveEvent[];      // 当日の発火イベント一覧（朝に確定）
   lateForWorkCount: number;        // 今月の遅刻回数（給料計算用）
 
  
