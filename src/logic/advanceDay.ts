@@ -7,6 +7,8 @@ import { getState, setState } from '../store/gameStore';
 import { processFleaMarketDay } from './fleaMarket';
 import { processDeliveries } from './onlineShopping';
 import type { MorningEvent } from '../types/gameState';
+import { determineTodayEvents } from './randomEvents';
+import type { ActiveEvent } from '../types/randomEvent';
 
 const DAYS_PER_MONTH = 28;
 const FOOD_COST = 1000; //食費
@@ -63,7 +65,8 @@ if (state.money >= FOOD_COST) {
   const newVitalityMonthlyTotal = state.vitalityMonthlyTotal + state.vitality;
   const newVitalityDaysElapsed = state.vitalityDaysElapsed + 1;
 
-
+  //今日のイベント
+  const todayEvents: ActiveEvent[] = determineTodayEvents(dayInMonth);
 
   setState({
     day: newDay,
@@ -77,6 +80,7 @@ if (state.money >= FOOD_COST) {
     actionPoints: newActionPoints,
     vitalityMonthlyTotal: newVitalityMonthlyTotal,
     vitalityDaysElapsed: newVitalityDaysElapsed,
+    todayEvents,
   });
 
   // 朝の処理
