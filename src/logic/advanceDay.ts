@@ -9,7 +9,9 @@ import { processDeliveries } from './onlineShopping';
 import type { MorningEvent } from '../types/gameState';
 
 const DAYS_PER_MONTH = 28;
+const FOOD_COST = 1000; //食費
 const LATE_FOR_WORK_THRESHOLD = 90; //玄関の汚さ90以上で遅刻
+const HUNGRY_VITALITY_PENALTY = 0.5; // 食費ないときの元気度減らし
 
 export function advanceDay(): { isMonthEnd: boolean, morningEvents: MorningEvent[]; } {
   const state = getState();
@@ -40,7 +42,19 @@ export function advanceDay(): { isMonthEnd: boolean, morningEvents: MorningEvent
   });
 
   // ── 食費を引く ──────────────────────────────────
-  const newMoney = state.money - 1000;
+  let newMoney: number;
+let newVitality: number = state.vitality;
+if (state.money >= FOOD_COST) {
+  // 普通に食費を引く
+  newMoney = state.money - FOOD_COST;
+} else if (state.money > 0) {
+  // 足りないが0で止める（マイナスにしない）
+  newMoney = 0;
+} else {
+  // お金がすでに0 → 元気度を下げる
+  newMoney = 0;
+  newVitality = Math.max(0, state.vitality - HUNGRY_VITALITY_PENALTY);
+}
 
   // ── 行動力リセット（平日20・休日60）────────────────
   const newActionPoints = newIsWorkDay ? 20 : 60;
@@ -59,6 +73,7 @@ export function advanceDay(): { isMonthEnd: boolean, morningEvents: MorningEvent
     isWorkDay: newIsWorkDay,
     areaStates: newAreaStates,
     money: newMoney,
+    vitality: newVitality,
     actionPoints: newActionPoints,
     vitalityMonthlyTotal: newVitalityMonthlyTotal,
     vitalityDaysElapsed: newVitalityDaysElapsed,
