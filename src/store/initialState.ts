@@ -5,7 +5,7 @@ import { INITIAL_AREAS } from '../types/area';
 export const initialState: GameState = {
   // ── 時間 ──────────────────────────────
   day: 1,
-  dayOfWeek: 6,    // 0=月曜日からスタート
+  dayOfWeek: 6,    // 0=月曜日からスタート チュートリアルは日曜なので6
   week: 1,
   month: 1,
   isWorkDay: false,
@@ -28,5 +28,9 @@ export const initialState: GameState = {
 
   // ── アイテム ──────────────────────────
   items: [],          // 最初は何も持っていない
-
+  pendingFleas: [],
+  pendingDeliveries: [],
+  morningEvents: [],
+  lateForWorkCount: 0,
+  monthlyRent: 70000,
 };
