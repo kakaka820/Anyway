@@ -3,6 +3,8 @@
 
 import type { AreaId, AreaDefinition } from './area';
 import type { ItemInstance } from './item';
+import type { PendingFleaResult } from '../logic/fleaMarket';
+import type { PendingDelivery } from '../logic/onlineShopping';
 
 // ────────────────────────────────
 // エリアごとの現在の状態
@@ -10,6 +12,19 @@ import type { ItemInstance } from './item';
 export interface AreaState {
   areaId: AreaId;
   currentMessiness: number; // 現在の散らかり度（0-100）
+}
+
+//朝の処理
+export type MorningEventType =
+  | 'flea_sold'
+  | 'flea_unsold'
+  | 'delivery'
+  | 'late_for_work';
+
+  export interface MorningEvent {
+  type: MorningEventType;
+  variantId?: string;   // フリマ・配達のアイテム
+  soldPrice?: number;   // フリマ売却額
 }
 
 // ────────────────────────────────
@@ -39,4 +54,18 @@ export interface GameState {
   // ── アイテム ────────────────────
   items: ItemInstance[];           // プレイヤーが所持しているアイテム一覧
 
+  // ── フリマの結果待ちキュー ────────────────────
+  pendingFleas: PendingFleaResult[];
+
+  // ── ネットショッピングの配達待ちキュー ────────────────────
+  pendingDeliveries: PendingDelivery[]; 
+
+  // ── 朝 ────────────────────
+  morningEvents: MorningEvent[];   // 朝に表示するイベントキュー
+  lateForWorkCount: number;        // 今月の遅刻回数（給料計算用）
+
+ 
+  // ── 月末処理 ────────────────────
+  monthlyRent: number;
 }
+
