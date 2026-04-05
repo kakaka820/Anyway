@@ -33,8 +33,8 @@ export function processMonthEnd(): MonthEndResult {
   const rent = state.monthlyRent;
   const newMoney = state.money + netSalary - rent;
 
-  // ── ゲームオーバー判定（所持金が正の数でない）────────
-  const isGameOver = newMoney <= 0;
+  // ── ゲームオーバー判定（所持金が自然数でない；0は許容）────────
+  const isGameOver = newMoney < 0;
 
   // ── 月次リセット ──────────────────────────────────
   setState({
