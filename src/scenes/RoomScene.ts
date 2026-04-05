@@ -156,7 +156,6 @@ export class RoomScene extends Phaser.Scene {
     confirmBtn.on('pointerout', () => confirmBtn.setColor('#ffffff'));
     confirmBtn.on('pointerdown', () => {
       container.destroy();
-      confirmBtn.destroy();
       onClose();
     });
     container.add(confirmBtn);
@@ -204,7 +203,6 @@ export class RoomScene extends Phaser.Scene {
     confirmBtn.on('pointerout', () => confirmBtn.setColor('#ffffff'));
     confirmBtn.on('pointerdown', () => {
       container.destroy();
-      confirmBtn.destroy();
       onClose();
     });
     container.add(confirmBtn);
