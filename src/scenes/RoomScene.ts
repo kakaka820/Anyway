@@ -7,6 +7,7 @@ import {
   canAfford, doBath, doTidy,
   doPhoneFleaMarket, doPhoneOnlineShopping, doPhoneSurfing,
 } from '../logic/actions';
+import { renderItems } from './RoomItemRenderer';
 
 export class RoomScene extends Phaser.Scene {
   private currentAreaIndex: number = 0;
@@ -86,6 +87,8 @@ export class RoomScene extends Phaser.Scene {
       const color = i === this.currentAreaIndex ? 0xffffff : 0x666666;
       this.add.circle(dotX, height - 24, 5, color);
     });
+    // ── アイテムを描画 ──────────────────────────────────
+    renderItems(this, area.id, () => this.renderArea());
      // ── 「行動」ボタン（右下）────────────────────
     const actionBtn = this.add.text(width - 20, height - 60, '⚡ 行動', {
       fontSize: '26px',
