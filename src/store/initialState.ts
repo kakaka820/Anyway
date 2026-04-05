@@ -27,7 +27,24 @@ export const initialState: GameState = {
   })),
 
   // ── アイテム ──────────────────────────
-  items: [],          // 最初は何も持っていない
+  items: [
+  // 床と服掛け（最も散らかってる）
+  { instanceId: 'init-01', variantId: 'tops-tshirt-white',   areaId: 'floor', isListed: false },
+  { instanceId: 'init-02', variantId: 'tops-tshirt-black',   areaId: 'floor', isListed: false },
+  { instanceId: 'init-03', variantId: 'bottoms-jeans-blue',  areaId: 'floor', isListed: false },
+  { instanceId: 'init-04', variantId: 'socks-simple-black',  areaId: 'floor', isListed: false },
+  { instanceId: 'init-05', variantId: 'socks-flower-pink',   areaId: 'floor', isListed: false },
+  // ベッド
+  { instanceId: 'init-06', variantId: 'tops-hoodie-gray',    areaId: 'bed',   isListed: false },
+  { instanceId: 'init-07', variantId: 'stuffed-bear-brown',  areaId: 'bed',   isListed: false },
+  // 机
+  { instanceId: 'init-08', variantId: 'book-manga-001',      areaId: 'desk',  isListed: false },
+  { instanceId: 'init-09', variantId: 'book-novel-001',      areaId: 'desk',  isListed: false },
+  { instanceId: 'init-10', variantId: 'snack-chips-001',     areaId: 'desk',  isListed: false },
+  { instanceId: 'init-11', variantId: 'snack-sweets-001',    areaId: 'desk',  isListed: false },
+  // クローゼット（初期から整理されてる場所）
+  { instanceId: 'init-12', variantId: 'bottoms-shorts-beige',areaId: 'closet',isListed: false },
+],          // 最初は何も持っていない
   pendingFleas: [],
   pendingDeliveries: [],
   morningEvents: [],
