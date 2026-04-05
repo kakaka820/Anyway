@@ -11,6 +11,10 @@ export class RoomScene extends Phaser.Scene {
 
   create() {
     this.currentAreaIndex = 0;
+    // UISceneが未起動なら起動する
+    if (!this.scene.isActive('UIScene')) {
+      this.scene.launch('UIScene');
+    }
     this.renderArea();
   }
 
@@ -29,17 +33,7 @@ export class RoomScene extends Phaser.Scene {
     // ── 背景 ──────────────────────────────────────
     this.add.rectangle(width / 2, height / 2, width, height, 0x2a2a3e);
 
-    // ── ステータスバー（上部）─────────────────────
-    const dayNames = ['月', '火', '水', '木', '金', '土', '日'];
-    this.add.text(16, 16, `${state.month}月 ${state.day}日（${dayNames[state.dayOfWeek]}）`, {
-      fontSize: '20px', color: '#ffffff',
-    });
-    this.add.text(16, 44, `¥${state.money.toLocaleString()}`, {
-      fontSize: '18px', color: '#f0e68c',
-    });
-    this.add.text(120, 44, `行動力: ${state.actionPoints}`, {
-      fontSize: '18px', color: '#90ee90',
-    });
+    
 
     // ── エリア表示（中央）────────────────────────
     this.add.rectangle(width / 2, height / 2 + 30, width - 120, height - 160, 0x3a3a5e);
