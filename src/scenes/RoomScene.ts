@@ -2,6 +2,11 @@
 import Phaser from 'phaser';
 import { getState } from '../store/gameStore';
 import { advanceDay } from '../logic/advanceDay';
+import {
+  getBathCost, getTidyCost, PHONE_SUB_COSTS,
+  canAfford, doBath, doTidy,
+  doPhoneFleaMarket, doPhoneOnlineShopping, doPhoneSurfing,
+} from '../logic/actions';
 
 export class RoomScene extends Phaser.Scene {
   private currentAreaIndex: number = 0;
@@ -81,20 +86,118 @@ export class RoomScene extends Phaser.Scene {
       const color = i === this.currentAreaIndex ? 0xffffff : 0x666666;
       this.add.circle(dotX, height - 24, 5, color);
     });
-     // ── 「寝る」ボタン（右下）────────────────────
-    const sleepBtn = this.add.text(width - 20, height - 60, '🌙 寝る', {
+     // ── 「行動」ボタン（右下）────────────────────
+    const actionBtn = this.add.text(width - 20, height - 60, '⚡ 行動', {
       fontSize: '26px',
       color: '#ffffff',
       backgroundColor: '#44446a',
       padding: { x: 16, y: 10 },
     }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
-    sleepBtn.on('pointerover', () => sleepBtn.setColor('#ffff99'));
-    sleepBtn.on('pointerout', () => sleepBtn.setColor('#ffffff'));
-    sleepBtn.on('pointerdown', () => {
-      this.onSleep();
-    });
+    actionBtn.on('pointerover', () => actionBtn.setColor('#ffff99'));
+    actionBtn.on('pointerout', () => actionBtn.setColor('#ffffff'));
+    actionBtn.on('pointerdown', () => { this.showActionMenu(); });
   }
-  // ── 「寝る」を押したときの処理 ───────────────────
+  // ── メインの行動メニュー ──────────────────────────
+  private showActionMenu() {
+    const { width, height } = this.scale;
+    const state = getState();
+    const area = state.areas[this.currentAreaIndex];
+    const ap = state.actionPoints;
+    const bathCost = getBathCost();
+    const tidyCost = getTidyCost(area.id);
+    const container = this.add.container(0, 0);
+    const overlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.5)
+      .setInteractive();
+    overlay.on('pointerdown', () => container.destroy());
+    container.add(overlay);
+    const panelH = 300;
+    container.add(this.add.rectangle(width / 2, height - panelH / 2, width, panelH, 0x1e1e3a));
+    container.add(this.add.text(width / 2, height - panelH + 16, `行動を選ぶ　残り行動力: ${ap}`, {
+      fontSize: '17px', color: '#8888aa',
+    }).setOrigin(0.5, 0));
+    // アクションの定義
+    const actions: { label: string; cost: number; onDo: () => void }[] = [
+      {
+        label: `お風呂  ${bathCost}AP`,
+        cost: bathCost,
+        onDo: () => { doBath(); container.destroy(); this.renderArea(); },
+      },
+      {
+        label: `片付け  ${tidyCost}AP`,
+        cost: tidyCost,
+        onDo: () => { doTidy(area.id); container.destroy(); this.renderArea(); },
+      },
+      {
+        label: `スマホ  ▶`,
+        cost: Math.min(PHONE_SUB_COSTS.fleaMarket, PHONE_SUB_COSTS.onlineShopping, PHONE_SUB_COSTS.surfing),
+        onDo: () => { container.destroy(); this.showPhoneMenu(); },
+      },
+      {
+        label: '寝る',
+        cost: 0,
+        onDo: () => { container.destroy(); this.onSleep(); },
+      },
+    ];
+    let yOffset = height - panelH + 58;
+    for (const action of actions) {
+      const affordable = canAfford(action.cost);
+      const color = affordable ? '#ffffff' : '#555577';
+      const bgColor = affordable ? '#33335a' : '#1a1a2e';
+      const row = this.add.text(width / 2, yOffset, action.label, {
+        fontSize: '22px', color, backgroundColor: bgColor,
+        padding: { x: 30, y: 8 },
+      }).setOrigin(0.5);
+      if (affordable) {
+        row.setInteractive({ useHandCursor: true });
+        row.on('pointerover', () => row.setStyle({ backgroundColor: '#55558a' }));
+        row.on('pointerout',  () => row.setStyle({ backgroundColor: bgColor }));
+        row.on('pointerdown', () => action.onDo());
+      }
+       container.add(row);
+      yOffset += 52;
+    }
+  }
+  // ── スマホのサブメニュー ──────────────────────────
+  private showPhoneMenu() {
+    const { width, height } = this.scale;
+    const ap = getState().actionPoints;
+    const container = this.add.container(0, 0);
+    const overlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.5)
+      .setInteractive();
+    overlay.on('pointerdown', () => { container.destroy(); this.showActionMenu(); }); // 戻る
+    container.add(overlay);
+    const panelH = 260;
+    container.add(this.add.rectangle(width / 2, height - panelH / 2, width, panelH, 0x1e1e3a));
+    container.add(this.add.text(width / 2, height - panelH + 16, `スマホで何をする？　残り行動力: ${ap}`, {
+      fontSize: '17px', color: '#8888aa',
+    }).setOrigin(0.5, 0));
+    const subActions: { label: string; cost: number; onDo: () => boolean }[] = [
+      { label: `フリマ         ${PHONE_SUB_COSTS.fleaMarket}AP`,     cost: PHONE_SUB_COSTS.fleaMarket,     onDo: doPhoneFleaMarket },
+      { label: `ネットショッピング  ${PHONE_SUB_COSTS.onlineShopping}AP`, cost: PHONE_SUB_COSTS.onlineShopping, onDo: doPhoneOnlineShopping },
+      { label: `ネットサーフィン  ${PHONE_SUB_COSTS.surfing}AP`,      cost: PHONE_SUB_COSTS.surfing,        onDo: doPhoneSurfing },
+    ];
+    let yOffset = height - panelH + 60;
+    for (const sub of subActions) {
+      const affordable = canAfford(sub.cost);
+      const color = affordable ? '#ffffff' : '#555577';
+      const bgColor = affordable ? '#33335a' : '#1a1a2e';
+      const row = this.add.text(width / 2, yOffset, sub.label, {
+        fontSize: '21px', color, backgroundColor: bgColor,
+        padding: { x: 30, y: 8 },
+      }).setOrigin(0.5);
+      if (affordable) {
+        row.setInteractive({ useHandCursor: true });
+        row.on('pointerover', () => row.setStyle({ backgroundColor: '#55558a' }));
+        row.on('pointerout',  () => row.setStyle({ backgroundColor: bgColor }));
+        row.on('pointerdown', () => {
+          const success = sub.onDo();
+          if (success) { container.destroy(); this.renderArea(); }
+        });
+      }
+      container.add(row);
+      yOffset += 52;
+    }
+  }
   private onSleep() {
     const result = advanceDay();
     this.scene.start('MorningScene', result);
