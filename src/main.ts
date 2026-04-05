@@ -4,7 +4,7 @@ import { BootScene } from './scenes/BootScene';
 import { TitleScene } from './scenes/TitleScene';
 import { RoomScene } from './scenes/RoomScene';
 import { UIScene } from './scenes/UIScene';
-import { MorningScene } from './scenes/MorningScene.ts';
+import { MorningScene } from './scenes/MorningScene';
 
 new Phaser.Game({
   type: Phaser.AUTO,
